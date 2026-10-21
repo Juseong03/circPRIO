@@ -1,0 +1,8 @@
+{
+  "junction_length": 400,
+  "encoding": "joint",
+  "pool": "meanmax",
+  "rcm_fusion": "staged_concat_meanmax",
+  "splicebert_repository": "multimolecule/splicebert",
+  "splicebert_revision": "8e3f4e5088b3bbf76876d8b931078d9f03caffdd"
+}

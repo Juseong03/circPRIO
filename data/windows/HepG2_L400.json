@@ -1,0 +1,9 @@
+{
+  "dataset": "HepG2",
+  "length": 400,
+  "rows": 1380,
+  "invalid": [],
+  "genome": "hg38.fa",
+  "convention": "genomic, transcript orientation (configs/window_policy.yaml)",
+  "sha256": "5161e629a22fbabc4441a753cb460f95aa1f1491853104a065d21a74b02efa4e"
+}

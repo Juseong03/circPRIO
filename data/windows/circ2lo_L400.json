@@ -1,0 +1,9 @@
+{
+  "dataset": "circ2lo",
+  "length": 400,
+  "rows": 84499,
+  "invalid": [],
+  "genome": "hg19.fa",
+  "convention": "genomic, transcript orientation (configs/window_policy.yaml)",
+  "sha256": "51b8526f337dd808b6f4a4cc957e6625f0759949668f160ce4352c953b180d67"
+}

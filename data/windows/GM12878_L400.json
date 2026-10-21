@@ -1,0 +1,9 @@
+{
+  "dataset": "GM12878",
+  "length": 400,
+  "rows": 16518,
+  "invalid": [],
+  "genome": "hg38.fa",
+  "convention": "genomic, transcript orientation (configs/window_policy.yaml)",
+  "sha256": "7adeac7cb49d791ed52ccc4d3dd1b057148beebff33ebdec963fa86d53ae5420"
+}

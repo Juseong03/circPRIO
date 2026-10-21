@@ -1,0 +1,7 @@
+# Window policy for circPRIO (author decision 2026-10-19, Milestone 1 report)
+convention: genomic            # windows cut from the reference genome around the back-splice coordinates (legacy definition)
+orientation: transcript        # minus strand: reverse complement, acceptor/donor swapped
+lengths_per_site: [100, 200, 400]
+split: half_intron_half_span   # acceptor: half upstream intron + half span start; donor: half span end + half downstream intron
+population: unchanged          # same candidates, labels and folds at every length; invalid windows reported, never dropped silently
+sensitivity: within_terminal_exons   # secondary analysis on candidates whose span-side half stays inside the first/last exon

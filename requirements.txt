@@ -1,0 +1,9 @@
+numpy==2.1.2
+pandas==2.3.0
+pyarrow==20.0.0
+scikit-learn==1.7.0
+pyfaidx==0.9.0.4
+multimolecule==0.0.7
+transformers==4.46.0
+safetensors==0.5.3
+huggingface-hub==0.32.5

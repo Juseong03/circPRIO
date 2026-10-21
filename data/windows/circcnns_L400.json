@@ -1,0 +1,12 @@
+{
+  "dataset": "circcnns",
+  "length": 400,
+  "rows": 24182,
+  "invalid": [
+    "chr5|138784248|138837189|-",
+    "chr5|138784766|138837189|-"
+  ],
+  "genome": "hg19.fa",
+  "convention": "genomic, transcript orientation (configs/window_policy.yaml)",
+  "sha256": "d6bf99a88a0a049991983898ea988b5e77b829c8ffb689f77d9b8b503c4c986b"
+}

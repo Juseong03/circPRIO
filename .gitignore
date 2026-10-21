@@ -1,0 +1,35 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+.env
+artifacts/
+checkpoints/
+outputs/
+*.npy
+*.npz
+*.parquet
+*.pt
+*.safetensors
+*.zip
+*.tar
+*.gz
+# Extracted external-download examples and manifests
+/examples/
+/SHA256SUMS
+/FILES.tsv
+/DATA_README.txt
+/CHECKPOINT_README.txt
+/checkpoint_manifest.json
+/EXAMPLE_README.txt
+/EXAMPLE_SHA256SUMS
+# Track only prepared small data. RCM arrays remain external.
+!/data/datasets/*/candidates.parquet
+!/data/windows/*_L400.npz
+/data/datasets/*/rcm.npy
+/data/rcm_SHA256SUMS
+/RCM_README.txt
+.ipynb_checkpoints/

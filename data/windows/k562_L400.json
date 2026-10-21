@@ -1,0 +1,9 @@
+{
+  "dataset": "k562",
+  "length": 400,
+  "rows": 115693,
+  "invalid": [],
+  "genome": "hg38.fa",
+  "convention": "genomic, transcript orientation (configs/window_policy.yaml)",
+  "sha256": "f3c886304b646aca9546ec43efedd26fabc8ee54df34b28db13d3627c15284b4"
+}

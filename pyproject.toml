@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=65", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "circprio"
+version = "0.1.0"
+description = "Circular RNA candidate prioritisation with junction sequence and RCM features"
+requires-python = ">=3.10"
+dependencies = ["numpy", "pandas", "pyarrow", "torch", "scikit-learn", "pyfaidx", "multimolecule", "transformers", "safetensors", "huggingface-hub"]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["circprio*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
