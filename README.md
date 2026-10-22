@@ -1,6 +1,6 @@
 # circPRIO
 
-Circular RNA candidate prioritisation with **circPRIO-J** (junction sequence) and **circPRIO-RCM** (junction + reverse-complementary-match features).
+Circular RNA candidate prioritisation with **circPRIO** (junction sequence) and **circPRIO-RCM** (junction + reverse-complementary-match features).
 
 This repository includes our model definitions, inference/training scripts, fixed candidate tables and compressed 400-nt sequence windows. **Only the large RCM descriptors are distributed through Google Drive.** Model weights and learned embedding caches are excluded from Git. Comparator models and historical experiment code are excluded. Git LFS is not required for this source-and-small-data package.
 
@@ -10,20 +10,29 @@ This repository includes our model definitions, inference/training scripts, fixe
 |---|---|
 | Candidate tables: IDs, coordinates, labels, components, fixed folds | Included: `data/datasets/<dataset>/candidates.parquet` |
 | Compressed 400-nt sequence windows and manifests | Included: `data/windows/<dataset>_L400.{npz,json}` |
-| RCM descriptors for all five datasets | `circPRIO_RCM_20261021.zip`: **Google Drive link to be added** |
+| RCM descriptors for all five datasets | `circPRIO_RCM_20261021.zip`: **Google Drive link to be added**, or recompute from a reference genome with `scripts/make_rcm.py` |
+| RCM flank lengths (intron-bounded datasets) | Included: `data/datasets/{k562,GM12878,HepG2}/rcm_flanks.parquet` |
 | SpliceBERT weights | Download the pinned checkpoint with `scripts/download_splicebert.py` |
 | SpliceBERT embeddings | Regenerate locally; ignored by Git |
 | Trained circPRIO weights | Train locally or obtain separately from the project owner |
 
 Dataset names: `circcnns`, `circ2lo`, `k562`, `GM12878`, `HepG2`. The first three have fixed training folds; the last two are transfer populations. See [data/README.md](data/README.md) for schemas and checksums.
 
-For circPRIO-J, the dataset files already in this repository are sufficient to regenerate embeddings and train. For circPRIO-RCM, additionally download the RCM ZIP and extract into the repository root. It creates `data/datasets/<dataset>/rcm.npy`. Do not commit these large arrays.
+For circPRIO, the dataset files already in this repository are sufficient to regenerate embeddings and train. For circPRIO-RCM, additionally download the RCM ZIP and extract into the repository root. It creates `data/datasets/<dataset>/rcm.npy`. Do not commit these large arrays.
+
+The RCM arrays can also be recomputed from sequence instead of downloaded (hg19 for `circcnns`/`circ2lo`, hg38 for the others; genomes are not distributed):
+
+```bash
+python scripts/make_rcm.py --dataset k562 --genome /path/to/hg38.fa --workers 16
+```
+
+The generator (`src/circprio/rcm_generate.py`) reproduces the distributed arrays exactly for every candidate of all five datasets; `--check <rcm.npy>` compares instead of writing.
 
 The original working project contains the RCM ZIP under `release/downloads/`; upload this ZIP to Drive and replace the link placeholder above. No upload has been performed automatically.
 
 ## Models
 
-* **circPRIO-J**: frozen SpliceBERT states from jointly encoded 400-nt acceptor/donor windows, site-specific CNNs, mean+max pooling.
+* **circPRIO**: frozen SpliceBERT states from jointly encoded 400-nt acceptor/donor windows, site-specific CNNs, mean+max pooling.
 * **circPRIO-RCM**: separately trained junction and RCM trunks followed by frozen-trunk concatenation fusion (`staged_concat_meanmax`). The RCM descriptor and TriRCM encoder are from **CircCNNs** and are attributed accordingly.
 
 Windows follow genomic coordinates in transcript orientation, not spliced transcripts. See `configs/window_policy.yaml`. Scores prioritise candidates under the training label definition; they are not evidence of a causal circularisation mechanism.

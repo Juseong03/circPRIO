@@ -20,7 +20,7 @@ Windows are genomic and transcript-oriented, not spliced transcript sequence. In
 
 **Download `circPRIO_RCM_20261021.zip`: [Google Drive link to be added by the repository owner].**
 
-This archive is the only dataset download needed for circPRIO-RCM. It is unnecessary for circPRIO-J. Extract it into the repository root to create:
+This archive is the only dataset download needed for circPRIO-RCM. It is unnecessary for circPRIO. Extract it into the repository root to create:
 
 ```text
 data/datasets/<dataset>/rcm.npy
@@ -36,6 +36,10 @@ sha256sum -c data/rcm_SHA256SUMS
 ```
 
 `metadata/rcm_files.tsv` records the external files' sizes and hashes. These large arrays are ignored by Git. No Drive upload has been performed by this packaging process.
+
+### Recomputing RCM from sequence
+
+`scripts/make_rcm.py --dataset <dataset> --genome <fasta>` computes the same arrays from an indexed reference genome (hg19: `circcnns`, `circ2lo`; hg38: `k562`, `GM12878`, `HepG2`). Flanks are 3,000 nt in transcript orientation outside the back-splice ends. For `k562`, `GM12878` and `HepG2` each flank is capped at the adjacent annotated intron; `data/datasets/<dataset>/rcm_flanks.parquet` (`candidate_id`, `upstream_intron_nt`, `downstream_intron_nt`, candidate order) gives these lengths. The recomputed arrays are identical to the distributed ones for every candidate.
 
 ## Generated and optional assets
 

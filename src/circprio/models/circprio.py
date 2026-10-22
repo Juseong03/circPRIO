@@ -1,4 +1,4 @@
-"""circPRIO-J: junction model on frozen SpliceBERT states of the acceptor and donor windows.
+"""circPRIO: junction model on frozen SpliceBERT states of the acceptor and donor windows.
 
 Historical configuration (published as CircPair; legacy `ablate.py` AblationNet 'p_meanmax'): the joined 400-nt input is
 embedded once by SpliceBERT (joint encoding), split into acceptor and donor states (2 x 200 x 512), each projected 512->128 (GELU),
@@ -50,8 +50,8 @@ def classifier_head(width):
     return nn.Sequential(nn.LayerNorm(width), nn.Linear(width, 128), nn.GELU(), nn.Dropout(.3), nn.Linear(128, 2))
 
 
-class CircPrioJ(nn.Module):
-    """circPRIO-J (historical CNN encoder).
+class CircPrio(nn.Module):
+    """circPRIO (historical CNN encoder).
 
     Inputs: `acceptor` and `donor` states (B, L, width) — from joint encoding (split of one SpliceBERT pass) or separate encoding
     (two passes); the model is agnostic to which. `sites`: 'both', 'acceptor' or 'donor'. `shared`: one encoder for both sites.

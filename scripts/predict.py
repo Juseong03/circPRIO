@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
-from circprio.models import CircPrioJ, CircPrioRCM
+from circprio.models import CircPrio, CircPrioRCM
 
 
 def predict(inputs, checkpoint, config, output, device='cpu', batch_size=64):
@@ -17,7 +17,7 @@ def predict(inputs, checkpoint, config, output, device='cpu', batch_size=64):
     weight = float(cfg['class_weight'])
     if not np.isfinite(weight) or weight <= 0:
         raise ValueError('class_weight must be the positive training class weight')
-    model = CircPrioJ(pool='meanmax') if cfg['model'] == 'junction' else CircPrioRCM(pool='meanmax')
+    model = CircPrio(pool='meanmax') if cfg['model'] == 'junction' else CircPrioRCM(pool='meanmax')
     model.load_state_dict(torch.load(checkpoint, map_location='cpu', weights_only=True), strict=True)
     model = model.eval().to(device)
     with np.load(inputs, allow_pickle=False) as arrays:

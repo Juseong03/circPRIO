@@ -9,7 +9,7 @@ heads, then frozen while only the fusion head on [junction 128; RCM 128] is trai
 import torch
 from torch import nn
 
-from .circprio_j import SiteEncoder
+from .circprio import SiteEncoder
 
 
 class RegionCNN(nn.Module):

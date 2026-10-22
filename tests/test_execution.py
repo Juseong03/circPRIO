@@ -8,7 +8,7 @@ import pytest
 import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from circprio.models import CircPrioJ, CircPrioRCM
+from circprio.models import CircPrio, CircPrioRCM
 from circprio.models.circprio_rcm import Branch, JunctionTrunk, TriRCM, FusionHead
 from predict import predict
 from export_checkpoint import export
@@ -20,7 +20,7 @@ from circprio import training
 def test_prediction_matches_direct_model(tmp_path, kind):
     torch.set_num_threads(2)
     torch.manual_seed(7)
-    net = (CircPrioJ(pool='meanmax') if kind == 'junction' else CircPrioRCM(pool='meanmax')).eval()
+    net = (CircPrio(pool='meanmax') if kind == 'junction' else CircPrioRCM(pool='meanmax')).eval()
     a, d = np.random.default_rng(7).normal(size=(2, 2, 400, 512)).astype(np.float32)
     r = np.zeros((2, 3, 5, 250), dtype=np.float32)
     np.savez(tmp_path/'features.npz', acceptor=a, donor=d, rcm=r, candidate_id=np.array(['a', 'b']))
@@ -75,6 +75,6 @@ def test_training_exports_complete_model(tmp_path, monkeypatch, kind):
     output=tmp_path/'trained'
     training_cli.train(kind, 'k562', 0, 42, output, 'cpu')
     cfg=json.loads((output/'config.json').read_text())
-    net=CircPrioJ(pool='meanmax') if kind=='junction' else CircPrioRCM(pool='meanmax')
+    net=CircPrio(pool='meanmax') if kind=='junction' else CircPrioRCM(pool='meanmax')
     net.load_state_dict(torch.load(output/'model.pt', weights_only=True), strict=True)
     assert cfg['class_weight']==1 and len(pd.read_csv(output/'test_predictions.csv'))==4

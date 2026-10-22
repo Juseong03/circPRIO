@@ -1,4 +1,4 @@
-"""Fit circPRIO-J or staged circPRIO-RCM for one fixed fold/seed; export a complete inference checkpoint."""
+"""Fit circPRIO or staged circPRIO-RCM for one fixed fold/seed; export a complete inference checkpoint."""
 import argparse
 import json
 from pathlib import Path
@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 from circprio import data
 from circprio.training import JunctionInputs, train_phase, logits
 from circprio.rcm import RCMInputs, FeatureInputs, branch_features
-from circprio.models import CircPrioJ, CircPrioRCM
+from circprio.models import CircPrio, CircPrioRCM
 from circprio.models.circprio_rcm import Branch, JunctionTrunk, TriRCM, FusionHead
 
 
@@ -29,7 +29,7 @@ def train(model, dataset, fold, seed, output, device):
 
     details = {}
     if model == 'junction':
-        _, net, inner, outer = refit(lambda: CircPrioJ(pool='meanmax'), junction)
+        _, net, inner, outer = refit(lambda: CircPrio(pool='meanmax'), junction)
         inputs = junction
     else:
         rcm = RCMInputs(dataset, device)

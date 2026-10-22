@@ -28,6 +28,7 @@ outputs/
 /EXAMPLE_SHA256SUMS
 # Track only prepared small data. RCM arrays remain external.
 !/data/datasets/*/candidates.parquet
+!/data/datasets/*/rcm_flanks.parquet
 !/data/windows/*_L400.npz
 /data/datasets/*/rcm.npy
 /data/rcm_SHA256SUMS
