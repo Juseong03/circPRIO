@@ -137,4 +137,4 @@ git status --short
 git commit -m "Add circPRIO models and prepared small datasets"
 ```
 
-Replace the RCM Drive link before publishing. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution and licensing status.
+Replace the RCM Drive link before publishing. The code is released under the MIT License ([LICENSE](LICENSE)); see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution and third-party terms.
