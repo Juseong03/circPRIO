@@ -16,11 +16,9 @@ Compressed window archives contain one `windows` array: uint8 `(N, 2, 400)`, acc
 
 Windows are genomic and transcript-oriented, not spliced transcript sequence. Invalid rows are retained and listed in the manifests. Exclude windows containing 255 when preparing inference features; the embedding routine uses placeholder bases for these rows. Preserve the exclusion-to-candidate-ID mapping.
 
-## RCM data: Google Drive
+## RCM data: verified external download or regeneration
 
-**Download `circPRIO_RCM_20261021.zip`: [Google Drive link to be added by the repository owner].**
-
-This archive is the only dataset download needed for circPRIO-RCM. It is unnecessary for circPRIO. Extract it into the repository root to create:
+Download the [RCM ZIP](https://drive.google.com/file/d/1ZO6Gfzje2SEwbXL-YE3iEPYAdter8Qzm/view) ([direct download](https://drive.usercontent.google.com/download?id=1ZO6Gfzje2SEwbXL-YE3iEPYAdter8Qzm&export=download&confirm=t)). Save it locally as `circPRIO_RCM_20261021.zip`. It is 372,839,187 bytes; SHA-256 `539aa1e97b420aa28d75191f0b342392cb4cb3acd760b9c1e5103ddac259c17a`. Anonymous full-download, archive CRC and original checksum checks passed on 23 October 2026. This is the only additional prepared dataset download needed for circPRIO-RCM. It is unnecessary for circPRIO. Extract it into the repository root to create:
 
 ```text
 data/datasets/<dataset>/rcm.npy
@@ -35,7 +33,7 @@ Verify the external files after extraction:
 sha256sum -c data/rcm_SHA256SUMS
 ```
 
-`metadata/rcm_files.tsv` records the external files' sizes and hashes. These large arrays are ignored by Git. No Drive upload has been performed by this packaging process.
+`metadata/rcm_files.tsv` records the external files' sizes and hashes. These large arrays are ignored by Git. The author uploaded the archive; the agent only verified downloads and edited local documentation.
 
 ### Recomputing RCM from sequence
 
@@ -44,5 +42,7 @@ sha256sum -c data/rcm_SHA256SUMS
 ## Generated and optional assets
 
 SpliceBERT model weights are downloaded using `scripts/download_splicebert.py`. Regenerate frozen embeddings from the included compressed windows with `scripts/embed.py`; generated caches remain under `artifacts/` and are ignored by Git.
+
+Candidate-level paper predictions and trained circPRIO weights are not included in the cited GitHub snapshot. See `../REPRODUCIBILITY.md` for the separately distributed combined reproducibility ZIP and its exact commands.
 
 Trained circPRIO weights are not included in GitHub. Training exports complete checkpoints and companion configs; existing checkpoints can be distributed separately. The original all-data and checkpoint ZIPs remain available in the working project's `release/downloads/` directory, but the all-data ZIP is unnecessary for this repository layout.
