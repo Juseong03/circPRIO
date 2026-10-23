@@ -1,148 +1,108 @@
 # circPRIO
 
-Circular RNA candidate prioritisation with **circPRIO** (junction sequence) and **circPRIO-RCM** (junction + reverse-complementary-match features).
+circPRIO prioritises circular RNA back-splice candidates using jointly encoded, pretrained acceptor/donor sequence representations. circPRIO-RCM combines the junction branch with the published CircCNNs intronic reverse-complementary-match (RCM) descriptor, encoder and staged fusion.
 
-This repository includes our model definitions, inference/training scripts, fixed candidate tables and compressed 400-nt sequence windows. **RCM inputs and the combined reproducibility package are available through the verified downloads below.** Model weights and learned embedding caches are excluded from Git. Comparator models and historical experiment code are excluded. Git LFS is not required for this source-and-small-data package.
+Scores rank candidates under the training label definition; they are not calibrated circularisation probabilities, abundance estimates or evidence of a causal mechanism. Windows are genomic, transcript-oriented sequences, not contiguous spliced RNA. See `configs/window_policy.yaml`.
 
-## Data
+## Installation
 
-| Asset | Location |
-|---|---|
-| Candidate tables: IDs, coordinates, labels, components, fixed folds | Included: `data/datasets/<dataset>/candidates.parquet` |
-| Compressed 400-nt sequence windows and manifests | Included: `data/windows/<dataset>_L400.{npz,json}` |
-| RCM descriptors for all five datasets | [Download RCM ZIP](https://drive.google.com/file/d/1ZO6Gfzje2SEwbXL-YE3iEPYAdter8Qzm/view) (372.84 MB); or regenerate with `scripts/make_rcm.py` |
-| RCM flank lengths (intron-bounded datasets) | Included: `data/datasets/{k562,GM12878,HepG2}/rcm_flanks.parquet` |
-| SpliceBERT weights | Download the pinned checkpoint with `scripts/download_splicebert.py` |
-| SpliceBERT embeddings | Regenerate locally; ignored by Git |
-| Trained circPRIO weights | Train locally or obtain separately from the project owner |
-
-Dataset names: `circcnns`, `circ2lo`, `k562`, `GM12878`, `HepG2`. The first three have fixed training folds; the last two are transfer populations. See [data/README.md](data/README.md) for schemas and checksums.
-
-For circPRIO, the dataset files already in this repository are sufficient to regenerate embeddings and train. For circPRIO-RCM, additionally regenerate RCM from a reference genome, or download and extract the RCM ZIP into the repository root. It creates `data/datasets/<dataset>/rcm.npy`. Do not commit these large arrays.
-
-The RCM arrays can also be recomputed from sequence instead of downloaded (hg19 for `circcnns`/`circ2lo`, hg38 for the others; genomes are not distributed):
-
-```bash
-python scripts/make_rcm.py --dataset k562 --genome /path/to/hg38.fa --workers 16
-```
-
-The generator (`src/circprio/rcm_generate.py`) reproduces the distributed arrays exactly for every candidate of all five datasets; `--check <rcm.npy>` compares instead of writing.
-
-The RCM ZIP is 372,839,187 bytes; its SHA-256 is `539aa1e97b420aa28d75191f0b342392cb4cb3acd760b9c1e5103ddac259c17a`. The complete remote file was downloaded without login and matched the original bytes. See [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for genome sources, verification commands and the distinction between plot reproduction and candidate-level statistical recomputation.
-
-## Manuscript version and reproducibility scope
-
-The manuscript cites the public source snapshot [`271dc008650b40fc901dbccd4a8a6b8a90997981`](https://github.com/Juseong03/circPRIO/tree/271dc008650b40fc901dbccd4a8a6b8a90997981). This snapshot was verified anonymously on 23 October 2026. It provides model training/inference code and fixed candidate inputs; it does not contain the saved paper predictions, trained checkpoints, or the manuscript figure pipeline. The current documentation/statistical-script revisions are local changes pending author review and publication; they are not part of that cited commit.
-
-The [combined reproducibility ZIP](https://drive.google.com/file/d/15CJA3t0DxM6QxHfzx_79rC6ikqk8qWaS/view) (44.97 MB) contains `core_evidence/` (candidate-level K562 predictions and the independent statistical script) and `figure_reproduction/` (all seven main and two supplementary figures' saved inputs/code). It was downloaded without login and matched SHA-256 `a71400b0314b55cabc4ff1187e75813a19c08c440c045ad2d40bdf586a38f400`. See [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for download, extraction and exact commands. These external archives are separate from the original cited code commit; no durable DOI has yet been issued.
-
-## Models
-
-* **circPRIO**: frozen SpliceBERT states from jointly encoded 400-nt acceptor/donor windows, site-specific CNNs, mean+max pooling.
-* **circPRIO-RCM**: separately trained junction and RCM trunks followed by frozen-trunk concatenation fusion (`staged_concat_meanmax`). The RCM descriptor and TriRCM encoder are from **CircCNNs** and are attributed accordingly.
-
-Windows follow genomic coordinates in transcript orientation, not spliced transcripts. See `configs/window_policy.yaml`. Scores prioritise candidates under the training label definition; they are not evidence of a causal circularisation mechanism.
-
-## Install
-
-Python 3.10 and a compatible PyTorch installation are required. CPU inference is supported; embedding generation uses CUDA.
+Use Python 3.10 and a compatible PyTorch build. The original environment used CUDA 12.1:
 
 ```bash
 python3.10 -m venv .venv
 source .venv/bin/activate
-# Match the original CUDA 12.1 environment, or install the PyTorch build for your machine.
 pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cu121
 pip install -r requirements.txt
 pip install -e . --no-deps
 ```
 
-Use an editable installation: data/model paths resolve relative to the checkout. Mamba, comparator libraries and manuscript tools are not required.
+CPU inference is supported; SpliceBERT embedding generation uses CUDA. Mamba and comparator libraries are not needed.
 
-## Train
+## Data and downloads
+
+Candidate tables, fixed folds, compressed 400-nt windows and cell-line flank lengths are included for `circcnns`, `circ2lo`, `k562`, `GM12878` and `HepG2`. The first three are training/evaluation populations; the last two are frozen-transfer populations. Schemas and array alignment are documented in [data/README.md](data/README.md).
+
+| Download | Size | Contents |
+|---|---:|---|
+| [RCM data](https://drive.google.com/file/d/1ZO6Gfzje2SEwbXL-YE3iEPYAdter8Qzm/view) | 372.84 MB | RCM descriptors for all five populations |
+| [Reproducibility package](https://drive.google.com/file/d/15CJA3t0DxM6QxHfzx_79rC6ikqk8qWaS/view) | 44.97 MB | K562 candidate-level predictions/statistical code and saved inputs/code for Figures 1–7 and S1–S2 |
+
+Download, verify and extract from the repository root:
+
+```bash
+curl --fail --location 'https://drive.usercontent.google.com/download?id=1ZO6Gfzje2SEwbXL-YE3iEPYAdter8Qzm&export=download&confirm=t' --output circPRIO_RCM_20261021.zip
+curl --fail --location 'https://drive.usercontent.google.com/download?id=15CJA3t0DxM6QxHfzx_79rC6ikqk8qWaS&export=download&confirm=t' --output circPRIO_reproducibility_20261023.zip
+sha256sum -c metadata/external_download_SHA256SUMS
+unzip circPRIO_RCM_20261021.zip
+sha256sum -c data/rcm_SHA256SUMS
+unzip circPRIO_reproducibility_20261023.zip -d reproducibility
+```
+
+Both full downloads were verified without login against the original SHA-256 values and ZIP CRCs. Exact URLs, sizes and hashes are in `metadata/external_downloads.tsv`; included data-file hashes are in `metadata/github_data_files.tsv` and RCM array hashes in `metadata/rcm_files.tsv`. Large RCM arrays, weights and embedding caches are excluded from Git. Raw RNA-seq and reference genomes are not distributed here.
+
+### Regenerating RCM
+
+RCM can be regenerated instead of downloaded:
+
+```bash
+python scripts/make_rcm.py --dataset k562 --genome /path/to/hg38.fa --workers 16
+python scripts/make_rcm.py --dataset k562 --genome /path/to/hg38.fa --check data/datasets/k562/rcm.npy --workers 16
+```
+
+Use [hg19](https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz) for `circcnns`/`circ2lo` and [hg38](https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.fa.gz) for the cell-line populations. Preserve the provided intron-length tables, chromosome names and candidate order. The study FASTA SHA-256 values are `4029ee1557640ca5503abb84af511c45ce2d902cb13579a4c1234ae05afbfc62` (hg19) and `3bb6151693a3b598d510d8e43b1600557ed756e7cfc9e150fb94d1d9e6b3dd07` (hg38); file formatting can affect these hashes. Do not standardise RCM descriptors for TriRCM.
+
+## Training
 
 ```bash
 python scripts/download_splicebert.py
 python scripts/embed.py --dataset k562 --device cuda:0
-
-python scripts/train.py --model junction --dataset k562 --fold 0 \
-  --seed 20260910 --device cuda:0 --output outputs/junction/seed20260910/fold0
-
-# First extract the RCM ZIP into this repository's root.
-python scripts/train.py --model rcm --dataset k562 --fold 0 \
-  --seed 20260910 --device cuda:0 --output outputs/rcm/seed20260910/fold0
+python scripts/train.py --model junction --dataset k562 --fold 0 --seed 20260910 --device cuda:0 --output outputs/junction/seed20260910/fold0
+python scripts/train.py --model rcm --dataset k562 --fold 0 --seed 20260910 --device cuda:0 --output outputs/rcm/seed20260910/fold0
 ```
 
-Each command trains one fixed fold/seed. Repeat folds 0–4 and the desired seeds for cross-validation. Epoch selection uses the next fold, inner training uses three folds, and a fresh outer refit uses four folds. Seeds are set before model construction. RCM training fits both branches separately, builds phase-specific frozen representations and trains a concatenation head. No comparator or model-selection experiments are run.
+Each command fits one fold/seed; repeat folds 0–4 and seeds 20260910–20260919 for the ten-seed protocol. Inner training uses three folds, the next fold selects the epoch, and a fresh outer refit uses four folds; seeds are set before model construction. RCM training separately fits both trunks and then the fusion head on their phase-specific frozen features. Use a new empty output directory for each fit. Outputs include `model.pt`, `config.json`, training records and test predictions.
 
-Outputs include complete `model.pt`, companion `config.json`, training records and held-out predictions. Use a new empty output directory for each fit. `CIRCPRIO_SPLICEBERT=/path/to/local/checkpoint` overrides the frozen checkpoint location; its exact revision is recorded in `configs/model.json`.
+The frozen SpliceBERT checkpoint is pinned in `configs/model.json`; `CIRCPRIO_SPLICEBERT=/path/to/checkpoint` overrides its local location. No published trained circPRIO checkpoint is bundled, so inference requires a separately obtained or locally trained model. The compact repository does not rerun comparator/model-selection experiments.
 
-## Run inference
+## Inference
 
-Use a complete trained checkpoint and its companion config. Prepared inference `.npz` files must contain:
-
-| Key | Shape | Meaning |
-|---|---|---|
-| `acceptor` | `(N, 400, 512)` | Frozen SpliceBERT acceptor states |
-| `donor` | `(N, 400, 512)` | Donor states from the same joint encoding |
-| `rcm` | `(N, 3, 5, 250)` | Log-transformed RCM descriptor; RCM model only |
-| `candidate_id` | `(N,)`, optional | String/numeric IDs in feature order |
-
-These are encoded features, not raw FASTA or the `windows` arrays committed in `data/windows/`. Preserve candidate alignment and use the pinned frozen checkpoint. Do not standardise RCM for TriRCM.
+A prepared feature NPZ contains `acceptor` and `donor`, each `(N,400,512)` from the same joint SpliceBERT encoding; RCM models additionally require `rcm` of shape `(N,3,5,250)`. Optional `candidate_id` has shape `(N,)`. These encoded features differ from the raw compressed nucleotide windows in `data/windows/`.
 
 ```bash
-python scripts/predict.py \
-  --inputs /path/to/features.npz \
-  --checkpoint /path/to/model.pt \
-  --config /path/to/config.json \
-  --device cpu \
-  --output outputs/predictions.csv
+python scripts/predict.py --inputs /path/to/features.npz --checkpoint /path/to/model.pt --config /path/to/config.json --device cpu --output outputs/predictions.csv
 ```
 
-Use `--device cuda:0` for GPU inference. The CSV contains IDs, logits, prior-corrected scores and the class-balanced threshold. The config must specify `model` (`junction` or `rcm`), `pool` (`meanmax`) and the positive `class_weight` used in outer training. Do not substitute a new cohort's prevalence.
-
-Historical RCM fits store two branch checkpoints and a fusion head separately. To assemble a complete checkpoint, provide files from the same dataset/seed/fold:
+The companion config records `model` (`junction` or `rcm`), `pool` (`meanmax`) and the original positive `class_weight`. Do not replace that weight with inference-cohort prevalence. Output includes IDs, logits, prior-corrected scores and the training-derived class-balanced threshold. To assemble historical branch/head files from the same fit:
 
 ```bash
-python scripts/export_checkpoint.py \
-  --junction /path/to/junction_meanmax/SEED/fold0/outer_model.pt \
-  --rcm /path/to/rcm_branch/SEED/fold0/outer_model.pt \
-  --head /path/to/staged_concat_meanmax/SEED/fold0/outer_head.pt \
-  --result /path/to/staged_concat_meanmax/SEED/fold0/result.json \
-  --output checkpoints/rcm
+python scripts/export_checkpoint.py --junction /path/to/junction/outer_model.pt --rcm /path/to/rcm/outer_model.pt --head /path/to/fusion/outer_head.pt --result /path/to/fusion/result.json --output checkpoints/rcm
 ```
 
-## Layout
+## Reproducing the reported results
 
-```text
-src/circprio/          Our models, input loading, embeddings and training utilities
-scripts/              Inference, checkpoint export, embedding and model training
-configs/              Adopted model configuration and window convention
-data/datasets/        Committed candidate tables; externally downloaded RCM arrays are ignored
-data/windows/         Committed compressed sequence inputs and manifests
-metadata/             Committed/external data sizes and checksums
-tests/                Window, inference and training tests
+From the repository root after extracting the combined ZIP:
+
+```bash
+python scripts/reproduce_core_metrics.py --evidence reproducibility/core_evidence --output outputs/core_recomputed
 ```
 
-Generated `artifacts/`, `checkpoints/` and `outputs/` are ignored by Git. Explicit `.gitignore` exceptions allow only the prepared candidate tables and compressed sequence windows to be committed.
+This independently recalculates AP/AUROC, Hit@1 and paired 2,000-draw component/gene-cluster intervals from unchanged K562 scores for circPRIO-RCM, the CircCNNs RCM model, the RCM branch and the same-architecture one-hot fusion (ten seeds, five folds). All 47 comparisons against the saved results passed at tolerance 1e-10. The executed bootstrap seed was 20261019; the preserved M8 configuration's prose says 20261010, but its analysis calls used the evaluation routine's default 20261019. Reproduction follows the executed code and leaves the original results unchanged.
 
-## Tests
+For figure reproduction, install `reproducibility/figure_reproduction/reproduction/requirements.txt` in a separate Python environment, then run from the repository root:
+
+```bash
+python reproducibility/figure_reproduction/reproduction/manuscript/render_figures.py --figures 1 2 3 4 5 6 7 --supplementary --output outputs/replotted_figures
+```
+
+This second command plots saved summaries; it does not independently recalculate every metric/CI. Candidate-level recalculation covers the four K562 models above; other benchmark/transfer results are supplied as summaries. The archives contain no raw reads, genomes, trained checkpoints or large embedding caches. Pre-upload README/manifest status statements in the frozen ZIPs are historical; the download locations above are current.
+
+The original study-code snapshot is [271dc008650b40fc901dbccd4a8a6b8a90997981](https://github.com/Juseong03/circPRIO/tree/271dc008650b40fc901dbccd4a8a6b8a90997981); later statistical scripts and download documentation are provided in this repository. Scores and bootstrap intervals remain conditional on fixed predictions and the study's candidate definitions. The K562 junction increment was not established in the evaluated frozen external transfer; pooled/non-fully-nested selection and comparator fitting differences remain limitations described in the paper.
+
+## Tests and licence
 
 ```bash
 pip install pytest==9.1.1
 python -m pytest -q
 ```
 
-Execution tests use synthetic inputs without a GPU. Prepared-data tests verify included windows, hashes and fixed folds. They do not reproduce trained performance.
-
-## Commit
-
-```bash
-git init
-git add .
-git status --short
-git commit -m "Add circPRIO models and prepared small datasets"
-```
-
-Before publishing an external data download, confirm its source-data redistribution terms and record its tested URL. The code is released under the MIT License ([LICENSE](LICENSE)); see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for attribution and third-party terms.
-
-Archive provenance note: the downloaded ZIPs preserve README/manifest statements written before the author uploaded them (for example, “local review candidate” or “no public URL”). Those are historical preparation records. The verified URLs and hashes in `metadata/external_downloads.tsv` give the current technical access status; original scientific content and ZIP bytes have not been changed.
+Tests cover synthetic inference/training, RCM generation rules and prepared-data hashes/folds. They do not reproduce all trained-model performance. Project code uses the [MIT licence](LICENSE); see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for inherited components and source-data terms.

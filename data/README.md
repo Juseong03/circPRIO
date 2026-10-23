@@ -1,8 +1,6 @@
 # Prepared data
 
-## Included in GitHub
-
-The following real files are committed with the code, for `circcnns`, `circ2lo`, `k562`, `GM12878` and `HepG2`:
+Included for `circcnns`, `circ2lo`, `k562`, `GM12878` and `HepG2`:
 
 ```text
 data/datasets/<dataset>/candidates.parquet
@@ -10,39 +8,16 @@ data/windows/<dataset>_L400.npz
 data/windows/<dataset>_L400.json
 ```
 
-Candidate tables contain `candidate_id`, `chromosome`, `start0`, `end0`, `strand`, `y`, `component`, `fold`. The label is 0/1; fixed folds are 0–4 for training populations and -1 for transfer populations. Row order and component-controlled folds are preserved. `metadata/github_data_files.tsv` records file sizes and SHA-256 checksums.
+Candidate columns are `candidate_id`, `chromosome`, `start0`, `end0`, `strand`, `y`, `component`, `fold`. Labels are 0/1; fixed folds are 0–4 for training populations and -1 for frozen transfer. Candidate order and component-controlled splits are preserved. File sizes/SHA-256 values are in `metadata/github_data_files.tsv`.
 
-Compressed window archives contain one `windows` array: uint8 `(N, 2, 400)`, acceptor then donor, encoded A=0, C=1, G=2, T=3, invalid=255. The JSON manifest records the dataset, row count and SHA-256 of the uncompressed raw array bytes. Compression preserves all values. The loader reads these files directly; no manual unpacking is needed.
+Window NPZs contain `windows`: uint8 `(N,2,400)`, acceptor then donor, with A=0, C=1, G=2, T=3 and invalid=255. JSON manifests record row counts, invalid candidates and the raw-array SHA-256. Windows are genomic and transcript-oriented. The embedding routine uses placeholder bases for invalid rows; when excluding them for custom inference, preserve the mapping to candidate IDs.
 
-Windows are genomic and transcript-oriented, not spliced transcript sequence. Invalid rows are retained and listed in the manifests. Exclude windows containing 255 when preparing inference features; the embedding routine uses placeholder bases for these rows. Preserve the exclusion-to-candidate-ID mapping.
+## External RCM arrays
 
-## RCM data: verified external download or regeneration
+Download/extraction/checksum commands are in the main [README](../README.md#data-and-downloads). Extract the RCM ZIP into the repository root to create `data/datasets/<dataset>/rcm.npy` and `data/rcm_SHA256SUMS`.
 
-Download the [RCM ZIP](https://drive.google.com/file/d/1ZO6Gfzje2SEwbXL-YE3iEPYAdter8Qzm/view) ([direct download](https://drive.usercontent.google.com/download?id=1ZO6Gfzje2SEwbXL-YE3iEPYAdter8Qzm&export=download&confirm=t)). Save it locally as `circPRIO_RCM_20261021.zip`. It is 372,839,187 bytes; SHA-256 `539aa1e97b420aa28d75191f0b342392cb4cb3acd760b9c1e5103ddac259c17a`. Anonymous full-download, archive CRC and original checksum checks passed on 23 October 2026. This is the only additional prepared dataset download needed for circPRIO-RCM. It is unnecessary for circPRIO. Extract it into the repository root to create:
+RCM arrays are float32 `(N,3,5,250)`, containing log-transformed CircCNNs descriptors aligned to candidate-table order. They are input descriptors rather than model weights. Do not standardise them for TriRCM. Per-array sizes/hashes are in `metadata/rcm_files.tsv`.
 
-```text
-data/datasets/<dataset>/rcm.npy
-data/rcm_SHA256SUMS
-```
+To regenerate descriptors, see [Regenerating RCM](../README.md#regenerating-rcm). The benchmark populations use fixed 3,000-nt flanks; cell-line populations cap each flank at the adjacent annotated intron. The committed `data/datasets/{k562,GM12878,HepG2}/rcm_flanks.parquet` tables give `candidate_id`, `upstream_intron_nt` and `downstream_intron_nt` in candidate order.
 
-RCM arrays are float32 `(N, 3, 5, 250)`, containing the log-transformed CircCNNs descriptors in candidate-table order. They are input descriptors, not model weights or learned embedding caches. CircCNNs native key/index alignment was verified before distribution. Do not standardise the descriptor for the adopted TriRCM model.
-
-Verify the external files after extraction:
-
-```bash
-sha256sum -c data/rcm_SHA256SUMS
-```
-
-`metadata/rcm_files.tsv` records the external files' sizes and hashes. These large arrays are ignored by Git. The author uploaded the archive; the agent only verified downloads and edited local documentation.
-
-### Recomputing RCM from sequence
-
-`scripts/make_rcm.py --dataset <dataset> --genome <fasta>` computes the same arrays from an indexed reference genome (hg19: `circcnns`, `circ2lo`; hg38: `k562`, `GM12878`, `HepG2`). Flanks are 3,000 nt in transcript orientation outside the back-splice ends. For `k562`, `GM12878` and `HepG2` each flank is capped at the adjacent annotated intron; `data/datasets/<dataset>/rcm_flanks.parquet` (`candidate_id`, `upstream_intron_nt`, `downstream_intron_nt`, candidate order) gives these lengths. The recomputed arrays are identical to the distributed ones for every candidate.
-
-## Generated and optional assets
-
-SpliceBERT model weights are downloaded using `scripts/download_splicebert.py`. Regenerate frozen embeddings from the included compressed windows with `scripts/embed.py`; generated caches remain under `artifacts/` and are ignored by Git.
-
-Candidate-level paper predictions and trained circPRIO weights are not included in the cited GitHub snapshot. See `../REPRODUCIBILITY.md` for the separately distributed combined reproducibility ZIP and its exact commands.
-
-Trained circPRIO weights are not included in GitHub. Training exports complete checkpoints and companion configs; existing checkpoints can be distributed separately. The original all-data and checkpoint ZIPs remain available in the working project's `release/downloads/` directory, but the all-data ZIP is unnecessary for this repository layout.
+SpliceBERT weights are downloaded separately, embeddings are generated locally, and trained circPRIO checkpoints are obtained separately or trained with the provided scripts. The external reproducibility ZIP contains selected K562 candidate-level predictions and figure sources; it does not contain a complete trained-model collection. See the main [reproduction instructions](../README.md#reproducing-the-reported-results).

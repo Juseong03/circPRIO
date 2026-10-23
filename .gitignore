@@ -34,3 +34,38 @@ outputs/
 /data/rcm_SHA256SUMS
 /RCM_README.txt
 .ipynb_checkpoints/
+
+# Keep internal writing, submission and review records outside the public package.
+/*.md
+!/README.md
+!/THIRD_PARTY_NOTICES.md
+/manuscript/
+/submission_ready/
+/submission_audit_*/
+/reports/
+/archive/
+/release/
+/release_candidates/
+/logs/
+/docs/
+/reproducibility/
+*.log
+*.aux
+*.bbl
+*.blg
+*.synctex.gz
+# Public metadata: prepared-input hashes and verified download locations only.
+/metadata/*
+!/metadata/github_data_files.tsv
+!/metadata/rcm_files.tsv
+!/metadata/external_downloads.tsv
+!/metadata/external_download_SHA256SUMS
+
+# Manuscript/proof artefacts are distributed with the paper, not the model code.
+/*.tex
+/*.pdf
+/*.docx
+/*.pptx
+/*.ipynb
+/figures/
+/tmp/
